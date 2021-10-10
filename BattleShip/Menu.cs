@@ -6,11 +6,10 @@ namespace BattleShip
     public static class Menu
     {
         private static int _index;
-        private readonly static  List<string> _mainMenuItems = new() {"New Game", "Resume Game", "Settings", "Exit"};
-        private readonly static List<string> _settingsMenu = new() {"Set Length", "Set Width", "Back"};
+        private static readonly List<string> _mainMenuItems = new() {"New Game", "Resume Game", "Settings", "Exit"};
+        private static readonly List<string> _settingsMenu = new() {"Set Length", "Set Width", "Back"};
         // private readonly List<string> _savedGames = new Config().ListAll();
         private  static Settings _settings = new ();
-        
         public static void Run()
         {
             Console.CursorVisible = false;
@@ -35,14 +34,11 @@ namespace BattleShip
                             menuItem = DrawListMenu(_settingsMenu);
                             switch (menuItem) // settings switch 
                             {
-                                case "Set Length":
-                                    _settings.SetLength();
+                                case "Set Length": _settings.SetLength();
                                     break;
-                                case "Set Width":
-                                    _settings.SetWidth();
+                                case "Set Width": _settings.SetWidth();
                                     break;
-                                case "Back":
-                                Console.Clear();
+                                case "Back": Console.Clear();
                                 loop = false;
                                 break;
                             } //end settings switch
@@ -52,26 +48,7 @@ namespace BattleShip
                     case "Resume Game":
                         _index = 0;
                         // _savedGames.Add("Back");
-                        var resumeLoop = true;
-                        // do
-                        // { 
-                        //     menuItem = DrawListMenu(_savedGames);
-                        //     
-                        //     if (menuItem == _savedGames[_index] && menuItem != "Back")
-                        //     {
-                        //         _settings  = new Config().LoadGame(_savedGames[_index]);
-                        //         gameEngine = new GameEngine(_settings);
-                        //         
-                        //         gameEngine.Run();
-                        //     }
-                        //     else if (menuItem == "Back")
-                        //     {
-                        //         resumeLoop = false;
-                        //         _savedGames.Remove("Back");
-                        //     }
-                        // } while (resumeLoop);
                         break;
-                        
                     case "Exit":
                         Environment.Exit(0);
                         break;
@@ -87,29 +64,25 @@ namespace BattleShip
               var pointer =  i == _index ? "**":"";
               Console.WriteLine("|{0,9}{1,11}{2,-9}|", pointer, items[i], pointer);
             }
-
-            var ckey = Console.ReadKey();
-            switch (ckey.Key.ToString())
+            switch (Console.ReadKey().Key)
             {
-                case "S"  when _index < items.Count-1:
+                case ConsoleKey.DownArrow when _index < items.Count-1:
                     _index++;
                     break;
-                case "DownArrow" when _index < items.Count-1:
-                    _index++;
-                    break;
-                case "W" when _index > 0:
+                case ConsoleKey.UpArrow when _index > 0:
                     _index--;
                     break;
                 default:
                 {
-                    if (ckey.Key == ConsoleKey.Enter)
+                    if (Console.ReadKey().Key == ConsoleKey.Enter)
                     {
                         return items[_index];
                     }
                     break;
                 }
             }
-            return "";
+
+            return string.Empty;
         }
     }
 }

@@ -1,201 +1,126 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace BattleShip
 {
-  public class GameEngine
+    public struct Player
     {
-        private int _playerX;
-
-        private int _playerY;
-        
-        private int Score { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+    public class GameEngine
+    {
+        private Player Player;
         private static char[,] Field { get; set; }
 
         public GameEngine(Settings settings)
         {
             Field = settings.Field;
-            Score = settings.Score;
+            Player = new();
         }
+        
+        private static int RowLength() => Field.GetUpperBound(0) + 1;
 
-
-        private static int RowLength()
-        {
-            return Field.GetUpperBound(0) + 1;
-        }
-
-        private static int ColLength()
-        {
-            return Field.Length / RowLength();
-        }
+        private static int ColLength() => Field.Length / RowLength();
 
         private void DrawField()
         {
             Console.Clear();
-        
-            try
+
+            if (Field[Player.Y, Player.X] == default)
             {
-                Field[_playerY, _playerX] = 'x';
+                Field[Player.Y, Player.X] = '*';
             }
-            catch(Exception e) {}
-            Console.WriteLine( $"{_playerX} {_playerY}");
-            // [' ', ' ', 'x'] "- - - - - - |"
+    
             for (int i = 0; i < RowLength(); i++)
             {
-                var sb = new StringBuilder("|");
+                var sb = new StringBuilder("| ");
                 for (int j = 0; j < ColLength(); j++)
                 {
-
-                    sb.Append($" {Field[i, j]} ");
+                    var ch = Field[i, j] == default
+                        ? $" {Field[i, j]} "
+                        : $" {Field[i, j]}";
+                    sb.Append(ch);
                 }
-                sb.Append("|\n");
+                sb.Append(" |\n");
                 Console.Write(sb);
-                // Console.WriteLine($"{_playerX} {_playerY}");
             }
         }
 
-        private void MakeMove(int pos, bool isHuman)
+        private void MakeMove()
         {
-            char playerChar = isHuman ? 'x' : 'o';
-
-            for (int i = RowLength() - 1; i >= 0; i--)
-            {
-                if(!char.IsLetterOrDigit(Field[i, pos]))
-                {
-                    Field[i, pos] = playerChar;
-                    Score++;
-                    break;
-                }
-            }
-
+            Field[Player.Y, Player.X] = 'o';
             DrawField();
         }
 
-        public bool Check(char toCheck, int row, int col, bool checkRow, bool checkCol)
+
+        private void ClearIndex(ref bool enterPressed)
         {
-            int[] rx = checkRow ? new[] {1, 2, 3} : !checkCol && !checkRow ? new[] {1, 2, 3} : new[] {0, 0, 0};
-            int[] cx = checkCol ? new[] {1, 2, 3} : !checkCol && !checkRow ? new[] {-1, -2, -3} : new[] {0, 0, 0};
+            if (!enterPressed)
+            {
+                Field[Player.Y, Player.X] = default;
+            }
+            enterPressed = false;
+        }
+
+        public enum Pos
+        {
+            X, Y
+        }
+        public void Increment(Pos pos)
+        {
+            if (pos is Pos.X && Field[Player.X+1, Player.Y] == default
+                || Field[Player.X+1, Player.Y+1] == default) Player.X++;
             
-            return toCheck == Field[row + rx[0], col + cx[0]] &&
-                   toCheck == Field[row + rx[1], col + cx[1]] &&
-                   toCheck == Field[row + rx[2], col + cx[2]];
+            if (pos is Pos.Y && Field[Player.X, Player.Y+1] == default) Player.Y++;
         }
-
-        private bool IsWin()
+        public void Decrement(Pos pos)
         {
-            for (int row = 0; row < RowLength(); row++)
-            {
-                char check;
-                for (int col = 0; col < ColLength(); col++)
-                {
-                    if (!char.IsLetter(Field[row, col]))
-                    {
-                        continue;
-                    }
-                    check = Field[row, col];
-
-                    if ((col >= ColLength() - 3 || !Check(check, row, col, false, true)) &&
-                        (row >= RowLength() - 3 || !Check(check, row, col, true, false)) &&
-                        (row >= RowLength() - 3 || col >= ColLength() - 3 || !Check(check, row, col, true, true)) &&
-                        (row >= RowLength() - 3 || col < ColLength() - 4 || !Check(check, row, col, false, false)))
-                        continue;
-                    Console.WriteLine(check == 'x' ? "You win!" : "You Lose");
-                    Console.ReadKey();
-                    return true;
-                }
-            }
-
-            return false;
+            if (pos is Pos.X && Field[Player.X-1, Player.Y] == default) Player.X--;
+            if (pos is Pos.Y && Field[Player.X, Player.Y-1] == default) Player.Y--;
         }
-
-        private void ClearIndex()
-        {
-            Field[_playerY, _playerX] = default;
-        }
-        private void ComputerMove()
-        {
-            Random random = new Random();
-            List<int> unique = new List<int>();
-
-            for (int i = 0; i < RowLength(); i++)
-            {
-                if (!Char.IsLetterOrDigit(Field[0, i]))
-                {
-                    unique.Add(i);
-                }
-            }
-
-            var computer = unique.OrderBy(x => random.Next()).Take(3);
-            MakeMove(computer.ElementAt(0), false);
-        }
-
+        
         public void Run()
         {
-            
             DrawField();
-            Console.WriteLine("---Press A to move left");
-            Console.WriteLine("---Press D to move right");
-            Console.WriteLine("---Press R to make move");
-            Console.WriteLine("---Press G for main menu");
-            Console.WriteLine("---Press V to save current game");
-
+            var enter = false;
             do
             {
-                var pressedKey = Console.ReadKey();
-                switch (pressedKey.Key)
+                switch (Console.ReadKey().Key)
                 {
-                    case ConsoleKey.LeftArrow when _playerX > 0:
-                        ClearIndex();
-                        _playerX--;
-                        DrawField();
+                    case ConsoleKey.LeftArrow when Player.X > 0:
+                        ClearIndex(ref enter);
+                        Decrement(Pos.X);
                         break;
-                    case ConsoleKey.RightArrow when _playerX < ColLength() - 1:
-                        ClearIndex();
-                        _playerX++;
-                        DrawField();
+                    case ConsoleKey.RightArrow when Player.X < ColLength() - 1:
+                        ClearIndex(ref enter);
+                        Increment(Pos.X);
                         break;
-                    case ConsoleKey.UpArrow: //when _playerY > 0:
-                        ClearIndex();
-                        _playerY--;
-                        _playerY = Math.Abs(_playerY);
-                        DrawField();
+                    case ConsoleKey.UpArrow: //when Player.Y > 0:
+                        ClearIndex(ref enter);
+                        Decrement(Pos.Y);
+                        Player.Y = Math.Abs(Player.Y);
                         break;
-                    case ConsoleKey.DownArrow:// when _playerY  < ColLength() - 1:
-                        ClearIndex();
-                        _playerY++;
-                        _playerY = Math.Abs(_playerY);
-                        DrawField();
+                    case ConsoleKey.DownArrow when Player.Y  < ColLength() - 1:
+                        ClearIndex(ref enter);
+                        Increment(Pos.Y);
+                        Player.Y = Math.Abs(Player.Y);
                         break;
                     case ConsoleKey.Enter:
-                        MakeMove(_playerX, true);
-                        ComputerMove();
+                        enter = true;
+                        MakeMove();
                         break;
                     case ConsoleKey.Escape:
                     {
-                        // Menu menu = new Menu();
-                        // menu.Run();
-                        break;
-                    }
-                    case ConsoleKey.S:
-                    {
-                        // Config config = new Config
-                        // {
-                        //     Score = Score,
-                        //     // Field = Field
-                        // };
-                        // config.Save(JsonConvert.SerializeObject(config));
+                        Menu.Run();
                         break;
                     }
                     default:
                         DrawField();
                         break;
                 }
+                DrawField();
             } while (true);
-            // Score >= Field.Length || !IsWin())
-            Console.WriteLine("Field is full");
         } //end Run
     }
 }
