@@ -13,7 +13,6 @@ namespace BattleShip
         public static void Run()
         {
             Console.CursorVisible = false;
-            
             while (true)
             {
                 var menuItem = DrawListMenu(_mainMenuItems);
@@ -25,7 +24,6 @@ namespace BattleShip
                         var gameEngine = new GameEngine(_settings);
                         gameEngine.Run();
                         break;
-                    
                     case "Settings":
                         _index = 0;
                         var loop = true;
@@ -72,6 +70,8 @@ namespace BattleShip
                 case ConsoleKey.UpArrow when _index > 0:
                     _index--;
                     break;
+                case ConsoleKey.UpArrow when _index > 0:
+                    return items[_index];
                 default:
                 {
                     if (Console.ReadKey().Key == ConsoleKey.Enter)
@@ -81,7 +81,6 @@ namespace BattleShip
                     break;
                 }
             }
-
             return string.Empty;
         }
     }

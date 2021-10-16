@@ -6,39 +6,35 @@ namespace BattleShip
     {
         public char[,] Field { get; set; } = new char[Length, Width];
         private static int Length { get; set; } = 10;
-        private static int Width { get; set; } = 10;
+        public static int Width { get; set; } = 10;
+        public int GetWidth => Width;
 
-        public int Score { get; set; }
-        
-        public void SetLength()
+        public  void SetLength()
         {
             Console.Write("Enter field length: ");
-            var length = Console.ReadLine();
-            if (length != null && int.TryParse(length, out var x) )
+            if (int.TryParse(Console.ReadLine(), out var length) )
             {
-                Length = x;
+                if (length is >= 10 and <= 30) Length = length;
                 Console.WriteLine("Length has been changed to {0}", Length);
             }
             else
             {
-                Console.WriteLine("Invalid input! Must be integer between 6-12");
+                Console.WriteLine("Invalid input! Must be integer between 10-20");
             }
-
             Console.ReadKey();
         }
 
-        public void SetWidth()
+        public  void SetWidth()
         { 
             Console.Write("Enter field width: ");
-            var width = Console.ReadLine();
-            if (width != null && int.TryParse(width, out var x))
+            if (int.TryParse(Console.ReadLine(), out var width) )
             {
-                Width = x;
+                if (width is >= 10 and <= 20) Width = width; 
                 Console.WriteLine("Width has been changed to {0}", Width);
             }
             else
             {
-                Console.WriteLine("Invalid input! Must be integer between 7-12");
+                Console.WriteLine("Invalid input! Must be integer between 10-20");
             }
             Console.ReadKey();
         }

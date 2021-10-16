@@ -7,6 +7,5 @@ namespace BattleShip
         {
             Menu.Run();
         }
-
     }
 }
