@@ -6,10 +6,9 @@ namespace BattleShip
     {
         public char[,] Field { get; set; } = new char[Length, Width];
         private static int Length { get; set; } = 10;
-        public static int Width { get; set; } = 10;
-        public int GetWidth => Width;
+        private static int Width { get; set; } = 10;
 
-        public  void SetLength()
+        public void SetLength()
         {
             Console.Write("Enter field length: ");
             if (int.TryParse(Console.ReadLine(), out var length) )
