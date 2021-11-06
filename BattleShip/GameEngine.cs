@@ -1,14 +1,15 @@
 using System;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using Models;
+using static System.ConsoleKey;
 
 namespace BattleShip
 {
     public class GameEngine
     {
         private static Player? Player, PlayerA, PlayerB;
-
+        private static StringBuilder sb = new ();
         public GameEngine(PlayerDto dto)
         {
             Player = dto.Player;
@@ -19,6 +20,9 @@ namespace BattleShip
         {
             PlayerA = new(settings.Field, '*');
             PlayerB = new((settings.Field.Clone() as char[,])!, '+');
+            PlayerA.OpField = PlayerB.Field;
+            PlayerB.OpField = PlayerA.Field;
+            
             Player = PlayerA;
         }
         
@@ -31,10 +35,11 @@ namespace BattleShip
         private static void SwapPlayer()
         {
             Player = Player!.Char == '*' ? PlayerB : PlayerA;
-            Thread.Sleep(3000);
         }
+        
         private static void DrawField(ref bool setup)
         {
+            Player!.SetUp = setup;
             Console.Clear();
             if (Player?.CharAt() != Player!.Char)
             {
@@ -50,28 +55,34 @@ namespace BattleShip
                 }
                 Player.SetChar();
             }
-            var sb = new StringBuilder();
             for (var c = 0; c < ColLength; c++)
             {
                 sb.Append($"| ");
                 for (var r = 0; r < RowLength; r++)
                 {
                     var ch = Player.CharAt(c, r) != Player!.Char
-                        ? $" {Player.CharAt(c, r)} "
-                        : $" {Player.CharAt(c, r)}";
+                                            ? $" {Player.CharAt(c, r)} "
+                                            : $" {Player.CharAt(c, r)}"; 
                     sb.Append(ch);
                 }
                 sb.Append(" |\n");
                 Console.Write(sb);
                 sb.Clear();
             }
+            Console.WriteLine($"{Player.C} : {Player.R}");
+
         }
 
         private static void MakeMove()
         {
             var set = false;
-            Player!.Field![Player!.C, Player!.R] = 'o';
+            Player!.SetChar(ch: 'o');
+            if (Player.CharAt() != default)
+            {
+                Player!.SetChar(ch: 'o');
+            }
             DrawField(ref set);
+            
             SwapPlayer();
         }
         
@@ -91,19 +102,19 @@ namespace BattleShip
             var toMenu = false;
             var enter = false;
             DrawField(ref setup); 
-            static bool ReturnToMenu(){ Menu.Run(); return true;} // local function
+            static bool ReturnToMenu(){ Menu.Run(); return true; } // local function
             
             while (!toMenu)
             {
                 _ = Console.ReadKey().Key switch
                 {
-                    ConsoleKey.LeftArrow when Player!.R > 0 => Player.Decrement(Pos.R, ref enter, ref setup),
-                    ConsoleKey.RightArrow when Player!.R < ColLength - 1 => Player.Increment(Pos.R, ref enter, ref setup),
-                    ConsoleKey.UpArrow when Player!.C > 0 => Player.Decrement(Pos.C, ref enter, ref setup), 
-                    ConsoleKey.DownArrow when Player!.C < ColLength - 1 => Player.Increment(Pos.C, ref enter, ref setup),
-                    ConsoleKey.Enter => Move(ref enter, ref setup),
-                    ConsoleKey.W => toMenu = ReturnToMenu(), // todo ESC
-                    ConsoleKey.V => Config.Save(new PlayerDto(Player, PlayerA, PlayerB)),
+                    LeftArrow when Player!.R > 0 => Player.Decrement(Pos.R, ref enter, ref setup),
+                    RightArrow when Player!.R < ColLength - 1 => Player.Increment(Pos.R, ref enter, ref setup),
+                    UpArrow when Player!.C > 0 => Player.Decrement(Pos.C, ref enter, ref setup), 
+                    DownArrow when Player!.C < ColLength - 1 => Player.Increment(Pos.C, ref enter, ref setup),
+                    Enter => Move(ref enter, ref setup),
+                    W => toMenu = ReturnToMenu(), // todo ESC
+                    V => Config.Save(new PlayerDto(Player, PlayerA, PlayerB)),
                     _  => true
                 };
                 DrawField(ref setup); 

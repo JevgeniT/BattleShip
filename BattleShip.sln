@@ -2,7 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip", "BattleShip\BattleShip.csproj", "{A6772C13-5DB2-4FFA-B02C-4DC2DAB8A995}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SomeTest", "SomeTest\SomeTest.csproj", "{EEB57B62-4552-4562-8C43-2BD711F5AB7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{04FC39F1-F63C-4CA8-BBC6-6B7D8618314E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{6C247EA2-D9EF-4156-910A-1ED3B133015A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,13 @@ Global
 		{A6772C13-5DB2-4FFA-B02C-4DC2DAB8A995}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6772C13-5DB2-4FFA-B02C-4DC2DAB8A995}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6772C13-5DB2-4FFA-B02C-4DC2DAB8A995}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EEB57B62-4552-4562-8C43-2BD711F5AB7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EEB57B62-4552-4562-8C43-2BD711F5AB7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EEB57B62-4552-4562-8C43-2BD711F5AB7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EEB57B62-4552-4562-8C43-2BD711F5AB7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04FC39F1-F63C-4CA8-BBC6-6B7D8618314E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04FC39F1-F63C-4CA8-BBC6-6B7D8618314E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04FC39F1-F63C-4CA8-BBC6-6B7D8618314E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04FC39F1-F63C-4CA8-BBC6-6B7D8618314E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C247EA2-D9EF-4156-910A-1ED3B133015A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C247EA2-D9EF-4156-910A-1ED3B133015A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C247EA2-D9EF-4156-910A-1ED3B133015A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C247EA2-D9EF-4156-910A-1ED3B133015A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

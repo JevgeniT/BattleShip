@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using DAL;
+using Models;
 using Newtonsoft.Json;
 
 namespace BattleShip
@@ -10,41 +12,66 @@ namespace BattleShip
     public static class Config
     {
         private static readonly string Path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/";
+        private static readonly AppDbContext DbContext = new();
         private static bool ValidInput(string fileName)
         {
-            if (fileName.Length >= 3) return true;
-            Console.WriteLine("Size has to be at least 3");
-            return false;
+            if (!(!fileName!.Contains(".json") ^ !fileName!.Contains(".db")) || fileName.Length <= 3)
+            {
+                Console.WriteLine("Invalid input");
+
+                return false;
+            }
+            return true;
         }
 
         public static bool Save(PlayerDto dto)
         {
-            Console.Write("ENTER FILE NAME: ");
-            var fileName = Console.ReadLine()?.ToLower();
+            Console.Write("Enter file name(.db for database, .json otherwise): ");
+            var fileName = Console.ReadLine()?.ToLower() ?? string.Empty;
 
-            if (File.Exists($"{Path}{fileName}.json") && ValidInput(fileName))
-            {
-                Console.WriteLine("The file already exists. Do you want to overwrite it? [y/n]");
-                if (Console.ReadLine() == "y") return InnerSave(fileName, dto);
-            }
-            else if (!File.Exists($"{Path}{fileName}.json") && ValidInput(fileName)) return InnerSave(fileName, dto);
+            if (!ValidInput(fileName!)) return false;
 
-            return false;
+            return fileName.Contains(".json")
+                switch 
+                {
+                    true  => SaveToJson(fileName, dto), 
+                    false => SaveToDb(fileName, dto), 
+                };
         }
 
-        private static bool InnerSave(string fileName, PlayerDto dto)
+        private static bool SaveToDb(string fileName, PlayerDto dto)
+        {
+            DbContext.Records.Add(
+                new DbRecord
+                {
+                    Id = Guid.NewGuid(),
+                    FileName = fileName,
+                    Game = JsonConvert.SerializeObject(dto)
+                });
+            DbContext.SaveChanges();
+            return true;
+        }
+        private static bool SaveToJson(string fileName, PlayerDto dto)
         {
             File.WriteAllText($"{Path}{fileName}.json", JsonConvert.SerializeObject(dto));
-            Console.WriteLine($"{Path}{fileName}.json");
-            Thread.Sleep(5000);
-            Console.WriteLine("GAME SAVED");
             return true;
         }
 
-        public static PlayerDto LoadGame(string name) 
-            => JsonConvert.DeserializeObject<PlayerDto>(File.ReadAllText($"{Path}{name}"))!;
+        public static PlayerDto LoadGame(string name)
+        {
+           var game = name.Contains(".json") 
+                ? File.ReadAllText($"{Path}{name}")
+                : DbContext.Records?.FirstOrDefault(r => r.FileName == name)?.Game!;
+            
+            return JsonConvert.DeserializeObject<PlayerDto>(game)!;
+        }
 
-        public static List<string> ListAll() 
-            => new DirectoryInfo(Path).GetFiles("*.json").Select(o => o.Name).ToList();
+        public static List<string> ListAll()
+        {
+            var db = DbContext.Records.Select(r => r.FileName).ToList();
+            var json =  new DirectoryInfo(Path).GetFiles("*.json").Select(o => o.Name).ToList();
+
+            return json.Concat(db).ToList();
+        }
     }
 }
