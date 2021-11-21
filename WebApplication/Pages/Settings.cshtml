@@ -1,0 +1,22 @@
+@page
+@model WebApplication.Pages.Settings
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div class="form-group">
+                <label for="height" class="control-label">Board height</label>
+                <input asp-for="Height" id="height" class="form-control"/>
+                
+                <label for="width" class="control-label">Board width</label>
+                <input asp-for="Width" id="width" class="form-control"/>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -9,10 +9,19 @@ namespace DAL
     // dotnet ef database drop --project DAL --startup-project BattleShip
     public class AppDbContext : DbContext
     {
-        private const string ConnectionString = "Data Source=battleship.db";
+        private const string ConnectionString = "Data Source=/home/jevgeni/RiderProjects/HW/BattleShip/BattleShip/battleship.db";
 
         public DbSet<DbRecord> Records { get; set; } = default!;
 
+        public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
+        {
+        
+        }
+
+        public AppDbContext()
+        {
+            
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(ConnectionString);

@@ -1,0 +1,48 @@
+@page
+@using Microsoft.AspNetCore.Components.Web
+@using BattleShip
+@model WebApplication.Pages.Game
+
+@{
+    ViewData["Title"] = "New Game";
+}
+
+
+<div class="text-center">
+    <h6>new game</h6>
+    <p>Player @(Model.Engine.GetCurrent().Char == '*' ? "One" : "Two" ) turn</p>
+    <button class="btn btn-success btn-sm" type="submit">Save boats</button>
+    <div class="container mt-3"  style="margin-left: 42%;">
+        <table class="table-bordered">
+            <tbody>
+            <form method="post">
+            @{
+                @for (var c = 0; c < GameEngine.ColLength; c++)
+                {
+                    <tr>
+                        @for (var r = 0; r < GameEngine.RowLength; r++)
+                        {
+                            var disabled = Model.Board[c,r] == 'x';
+
+                            if (!disabled)
+                            {
+                                <td  >
+                                 <input name="AreChecked" type="checkbox" value="@r,@c|" />
+                                </td>
+                            }
+                            else
+                            {
+                                <td >
+                                    <input name="AreChecked" type="checkbox" disabled="disabled" value="@r,@c|" />
+                                </td>
+                            }
+                        }
+                    </tr>
+                }
+            }
+            
+            </form>
+            </tbody>
+        </table>
+    </div>
+</div>

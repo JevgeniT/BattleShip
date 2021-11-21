@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Models;
 using static System.ConsoleKey;
 
@@ -22,12 +23,13 @@ namespace BattleShip
             PlayerB = new((settings.Field.Clone() as char[,])!, '+');
             PlayerA.OpField = PlayerB.Field;
             PlayerB.OpField = PlayerA.Field;
-            
+            PlayerA.OpChar = PlayerB.Char;
+            PlayerB.OpChar = PlayerA.Char;
             Player = PlayerA;
         }
         
-        private static int? RowLength => Player?.Field?.GetUpperBound(0) + 1;
-        private static int? ColLength => Player?.Field?.Length / RowLength;
+        public  static int? RowLength => Player?.Field?.GetUpperBound(0) + 1;
+        public  static int? ColLength => Player?.Field?.Length / RowLength;
 
         private static bool AllBoatsPlaced()
             => Player!.Boats.FirstOrDefault(pair => !pair.Value).Key == 0;
@@ -53,33 +55,40 @@ namespace BattleShip
                     }
                     for (var i = 0; i < key; i++) Player.SetChar(Player.C + i);
                 }
-                Player.SetChar();
+                // Player.SetChar();
             }
             for (var c = 0; c < ColLength; c++)
             {
                 sb.Append($"| ");
                 for (var r = 0; r < RowLength; r++)
                 {
-                    var ch = Player.CharAt(c, r) != Player!.Char
-                                            ? $" {Player.CharAt(c, r)} "
-                                            : $" {Player.CharAt(c, r)}"; 
+                    var ch = Player.C == c && Player.R == r ? $" {Player.Char}" : $" {Player.CharAt(c, r)} ";
                     sb.Append(ch);
                 }
                 sb.Append(" |\n");
                 Console.Write(sb);
                 sb.Clear();
             }
-            Console.WriteLine($"{Player.C} : {Player.R}");
+            Console.WriteLine($"{Player.C} : {Player.R} {Player.CharAt(5,5)}'");
 
         }
 
         private static void MakeMove()
         {
             var set = false;
-            Player!.SetChar(ch: 'o');
-            if (Player.CharAt() != default)
+            if (Player!.IsHit())
             {
-                Player!.SetChar(ch: 'o');
+                // * = o
+                // + = x => hit char
+                Console.WriteLine("HIT");
+                var hitChar = Player.Char == '+' ? 'x' : 'o';
+                Player!.Field![Player.C, Player.R] = (hitChar);
+                Thread.Sleep(2000);
+            }
+
+            else
+            {
+                Player!.Field![Player.C, Player.R] = 'm';
             }
             DrawField(ref set);
             
@@ -120,5 +129,9 @@ namespace BattleShip
                 DrawField(ref setup); 
             }
         }
+
+        public Player GetCurrent() => Player!;
+
+      
     }
 }

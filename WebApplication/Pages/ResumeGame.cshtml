@@ -1,0 +1,12 @@
+@page
+@model WebApplication.Pages.ResumeGame
+@{
+    ViewData["Title"] = "Resume Game";
+}
+<div class="container">
+    <h1>Resume game</h1>
+    @foreach (var game in Model.Games)
+    {
+        <p>@Html.DisplayFor(modelItem => game)</p>
+    }
+</div>
