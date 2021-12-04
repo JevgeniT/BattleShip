@@ -9,40 +9,68 @@
 
 
 <div class="text-center">
-    <h6>new game</h6>
-    <p>Player @(Model.Engine.GetCurrent().Char == '*' ? "One" : "Two" ) turn</p>
-    <button class="btn btn-success btn-sm" type="submit">Save boats</button>
+    <h4><b>New Game</b></h4>
+    @* <p>Player @(Model.Engine?.GetCurrent().Char == '*' ? "One" : "Two" ) turn</p> *@
+        <p>Player @(Model.Engine?.GetCurrent().Char) turn</p>
+        <p>Player1 hits @(Model.P11) : Player2 hits @(Model.P22)</p>
+
     <div class="container mt-3"  style="margin-left: 42%;">
         <table class="table-bordered">
             <tbody>
             <form method="post">
-            @{
-                @for (var c = 0; c < GameEngine.ColLength; c++)
-                {
-                    <tr>
-                        @for (var r = 0; r < GameEngine.RowLength; r++)
-                        {
-                            var disabled = Model.Board[c,r] == 'x';
+                @{
+                    @for (var c = 0; c < GameEngine.ColLength; c++)
+                    {
+                        <tr>
+                            @for (var r = 0; r < GameEngine.RowLength; r++)
+                            {
+                                var disabled = Model.Board[c,r] == Model.Engine.GetCurrent().Char;
 
-                            if (!disabled)
-                            {
-                                <td  >
-                                 <input name="AreChecked" type="checkbox" value="@r,@c|" />
-                                </td>
+                                if (!disabled)
+                                {
+                                    <td >
+                                        <input name="AreChecked" type="checkbox" value="@r,@c|" />
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td >
+                                        <input name="AreChecked" type="checkbox" disabled="disabled" value="@r,@c|" />
+                                    </td>
+                                }
                             }
-                            else
-                            {
-                                <td >
-                                    <input name="AreChecked" type="checkbox" disabled="disabled" value="@r,@c|" />
-                                </td>
-                            }
-                        }
-                    </tr>
+                        </tr>
+                    }
                 }
-            }
-            
+                <button class="btn btn-success btn-sm" type="submit">Save boats</button>
             </form>
             </tbody>
         </table>
     </div>
+    
+    <div class="container mt-3"  style="margin-left: 42%;">
+        <p class="text-left">@(Model.Engine.GetCurrent().OpChar) player's boats</p>
+            <table class="table-bordered">
+                <tbody>
+                <form method="post">
+                    @{
+                        @for (var c = 0; c < GameEngine.ColLength; c++)
+                        {
+                            <tr>
+                                @for (var r = 0; r < GameEngine.RowLength; r++)
+                                {
+                                    var disabled = Model.Engine.GetCurrent().Field[c,r];
+    
+                                    <td>
+                                        <span>@(disabled)</span>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                    @* <button class="btn btn-success btn-sm" type="submit">Save boats</button> *@
+                </form>
+                </tbody>
+            </table>
+        </div>
 </div>

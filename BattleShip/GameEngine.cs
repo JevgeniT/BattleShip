@@ -34,12 +34,13 @@ namespace BattleShip
         private static bool AllBoatsPlaced()
             => Player!.Boats.FirstOrDefault(pair => !pair.Value).Key == 0;
 
-        private static void SwapPlayer()
+        public void SwapPlayer()
         {
+            // Console.WriteLine(Player?.Char);
             Player = Player!.Char == '*' ? PlayerB : PlayerA;
         }
         
-        private static void DrawField(ref bool setup)
+        public void DrawField(ref bool setup)
         {
             Player!.SetUp = setup;
             Console.Clear();
@@ -69,35 +70,23 @@ namespace BattleShip
                 Console.Write(sb);
                 sb.Clear();
             }
-            Console.WriteLine($"{Player.C} : {Player.R} {Player.CharAt(5,5)}'");
+            Console.WriteLine($"{Player.C} : {Player.R}'");
 
         }
 
-        private static void MakeMove()
+        public void MakeMove(int? c = null, int?r = null)
         {
             var set = false;
-            if (Player!.IsHit())
-            {
-                // * = o
-                // + = x => hit char
-                Console.WriteLine("HIT");
-                var hitChar = Player.Char == '+' ? 'x' : 'o';
-                Player!.Field![Player.C, Player.R] = (hitChar);
-                Thread.Sleep(2000);
-            }
-
-            else
-            {
-                Player!.Field![Player.C, Player.R] = 'm';
-            }
-            DrawField(ref set);
+            var hitChar = Player?.Char == '+' ? 'x' : 'o';
+            Player!.Field![Player.C, Player.R] = Player!.IsHit(c, r) ? hitChar : 'm';
             
+            DrawField(ref set);
             SwapPlayer();
         }
         
         private static void UpdateBoat() { Player!.Boats[Player.Boats.FirstOrDefault(pair => !pair.Value).Key] = true; }
 
-        private static bool Move(ref bool enter, ref bool setup)
+        private  bool Move(ref bool enter, ref bool setup)
         {
             if (setup) UpdateBoat();
             enter = true;
@@ -131,7 +120,5 @@ namespace BattleShip
         }
 
         public Player GetCurrent() => Player!;
-
-      
     }
 }

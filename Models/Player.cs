@@ -16,6 +16,7 @@ namespace Models
 
         public char Char { get; set; } // player's key pointer and boat on field
         public char OpChar { get; set; }
+        
         /// <summary>
         ///  Key = ship size 1xN
         ///  Value = true -> on field, false -> not yet 
@@ -25,39 +26,32 @@ namespace Models
                 // {3, false}, {4, false}, {5, false}
             };
 
-        public bool IsHit() => OpField[C, R] == OpChar;
-        public char CharAt(int? c = null, int? r = null) => MainField()![c ?? C, r ?? R];
+        public bool IsHit(int? c = null, int?r = null) => MainField()![c??C, r??R] == OpChar;
+        public char CharAt(int? c = null, int? r = null) 
+            => (c ?? C) is < 0 or > 9 || (r ?? R) is < 0 or > 9 
+                ? default 
+                : MainField()![c ?? C, r ?? R];
+
         public void SetChar(int? c = null, int? r = null, char? ch = null)
         {
-            c ??= C;
-            r ??= R;
             ch = ch != null ? default : Char;
-            try
-            {
-                MainField()?.SetValue(ch, C, R);
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"{C} {R} {c} {r}");
-            }
+            MainField()?.SetValue(ch, C, R);
         }
        
         public bool Increment(Pos pos, ref bool enterPressed, ref bool setup)
         {
             ClearIndex(ref enterPressed, ref setup);
-            if (pos is Pos.R && MainField()![R + 1, C] == default || MainField()![R + 1, C] == OpChar) R++;
-            if (pos is Pos.C && MainField()![R, C + 1] == default || MainField()![R, C + 1] == OpChar) C++;
+            if (pos is Pos.R && CharAt(R + 1, C) == default || CharAt(R + 1, C) == OpChar) R++;
+            if (pos is Pos.C && CharAt(R, C + 1) == default || CharAt(R, C + 1) == OpChar) C++;
             return true;
         }
         
         public bool Decrement(Pos pos, ref bool enterPressed, ref bool setup)
         {
             ClearIndex(ref enterPressed, ref setup);
-            if (pos is Pos.R && MainField()![R - 1, C] == default || MainField()![R - 1, C] == OpChar) R--; //!= Char   || MainField()![R - 1, C] == OpChar
-            if (pos is Pos.C && MainField()![R, C - 1] == default || MainField()![R, C - 1] == OpChar) C--; //!= Char  || MainField()![R, C - 1] == OpChar
-            R = Math.Abs(R);
-            C = Math.Abs(C);
+            if (pos is Pos.R && CharAt(R - 1, C) == default || CharAt(R - 1, C) == OpChar) R--; //!= Char   || MainField()![R - 1, C] == OpChar
+            if (pos is Pos.C && CharAt(R, C - 1) == default || CharAt(R, C - 1) == OpChar) C--; //!= Char  || MainField()![R, C - 1] == OpChar
+            
             return true;
         }
         
