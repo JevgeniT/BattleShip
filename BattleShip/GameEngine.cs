@@ -9,8 +9,11 @@ namespace BattleShip
 {
     public class GameEngine
     {
+        private static Axis Axis = Axis.Col;
         private static Player? Player, PlayerA, PlayerB;
-        private static StringBuilder sb = new ();
+        private static readonly StringBuilder sb = new ();
+        public static bool SetUp = Player?.SetUp ?? true;
+        public Player GetCurrent() => Player!;
         public GameEngine(PlayerDto dto)
         {
             Player = dto.Player;
@@ -27,34 +30,36 @@ namespace BattleShip
             PlayerB.OpChar = PlayerA.Char;
             Player = PlayerA;
         }
-        
-        public  static int? RowLength => Player?.Field?.GetUpperBound(0) + 1;
-        public  static int? ColLength => Player?.Field?.Length / RowLength;
+
+        public int? RowLength => GetCurrent()?.Field?.GetUpperBound(0) + 1;
+        public int? ColLength => RowLength;
 
         private static bool AllBoatsPlaced()
             => Player!.Boats.FirstOrDefault(pair => !pair.Value).Key == 0;
 
-        public void SwapPlayer()
+        public void SwapPlayer() { Player = Player!.Char == '*' ? PlayerB : PlayerA; }
+
+        public void DrawField()
         {
-            // Console.WriteLine(Player?.Char);
-            Player = Player!.Char == '*' ? PlayerB : PlayerA;
-        }
-        
-        public void DrawField(ref bool setup)
-        {
-            Player!.SetUp = setup;
+            SetUp = Player!.SetUp;
             Console.Clear();
             if (Player?.CharAt() != Player!.Char)
             {
-                if (setup)
+                if (SetUp)
                 {
                     var key = Player!.Boats.FirstOrDefault(pair => !pair.Value).Key;
                     if (AllBoatsPlaced())
                     {
+                        Player.SetUp = SetUp = false;
                         SwapPlayer();
-                        if (AllBoatsPlaced()) setup = false;
+                        if (AllBoatsPlaced()) Player.SetUp = SetUp = false;
                     }
-                    for (var i = 0; i < key; i++) Player.SetChar(Player.C + i);
+
+                    for (var i = 0; i < key; i++)
+                    {
+                        if (Axis is Axis.Col) Player.SetChar(Player.C + i);
+                        else Player.SetChar(r: Player.R + i);
+                    }
                 }
                 // Player.SetChar();
             }
@@ -63,62 +68,75 @@ namespace BattleShip
                 sb.Append($"| ");
                 for (var r = 0; r < RowLength; r++)
                 {
-                    var ch = Player.C == c && Player.R == r ? $" {Player.Char}" : $" {Player.CharAt(c, r)} ";
+                    var empty = Player.CharAt(c, r) == default ? $" {default}" : $"{Player.CharAt(c, r)}";
+                    var ch = Player.C == c && Player.R == r 
+                        ? $" {Player.Char}" 
+                        : $" {empty}";
                     sb.Append(ch);
                 }
                 sb.Append(" |\n");
                 Console.Write(sb);
                 sb.Clear();
             }
-            Console.WriteLine($"{Player.C} : {Player.R}'");
 
+            Console.WriteLine($"{PlayerA!.SetUp} { PlayerB!.SetUp} {SetUp}");
+            // Console.WriteLine($"{Player.C} : {Player.R}' {PlayerA?.Hits} {PlayerB?.Hits} {setup}");
         }
 
-        public void MakeMove(int? c = null, int?r = null)
+        public void MakeMove(int? c = null, int? r = null)
         {
-            var set = false;
             var hitChar = Player?.Char == '+' ? 'x' : 'o';
             Player!.Field![Player.C, Player.R] = Player!.IsHit(c, r) ? hitChar : 'm';
-            
-            DrawField(ref set);
+            DrawField();
             SwapPlayer();
         }
-        
+
         private static void UpdateBoat() { Player!.Boats[Player.Boats.FirstOrDefault(pair => !pair.Value).Key] = true; }
 
-        private  bool Move(ref bool enter, ref bool setup)
+        public bool Move(ref bool enter)
         {
-            if (setup) UpdateBoat();
+            if (SetUp) UpdateBoat(); else MakeMove();
             enter = true;
-            if(!setup) MakeMove();
             return true;
         }
-        
+
         public void Run()
         {
-            var setup = true;
-            var toMenu = false;
-            var enter = false;
-            DrawField(ref setup); 
+            bool toMenu = false, enter = false, setup = true;
+            
+            DrawField(); 
             static bool ReturnToMenu(){ Menu.Run(); return true; } // local function
+
+            static bool SwapAxis()
+            {
+                Axis = Axis is Axis.Col ? Axis.Row : Axis.Col;
+                return true;
+            }
             
             while (!toMenu)
             {
                 _ = Console.ReadKey().Key switch
                 {
-                    LeftArrow when Player!.R > 0 => Player.Decrement(Pos.R, ref enter, ref setup),
-                    RightArrow when Player!.R < ColLength - 1 => Player.Increment(Pos.R, ref enter, ref setup),
-                    UpArrow when Player!.C > 0 => Player.Decrement(Pos.C, ref enter, ref setup), 
-                    DownArrow when Player!.C < ColLength - 1 => Player.Increment(Pos.C, ref enter, ref setup),
-                    Enter => Move(ref enter, ref setup),
+                    LeftArrow when Player!.R > 0 => Player.Decrement(Pos.R, Axis, ref enter, ref setup),
+                    RightArrow when Player!.R < ColLength - 1 => Player.Increment(Pos.R, Axis, ref enter, ref setup),
+                    UpArrow when Player!.C > 0 => Player.Decrement(Pos.C, Axis, ref enter, ref setup), 
+                    DownArrow when Player!.C < ColLength - 1 => Player.Increment(Pos.C, Axis, ref enter, ref setup),
+                    Enter => Move(ref enter),
+                    Spacebar => SwapAxis(),
                     W => toMenu = ReturnToMenu(), // todo ESC
                     V => Config.Save(new PlayerDto(Player, PlayerA, PlayerB)),
                     _  => true
                 };
-                DrawField(ref setup); 
+                
+                if (Player?.Hits == 2)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Player {(GetCurrent().Char == '*' ? "One" : "Two" )} won");
+                    Thread.Sleep(3000);
+                    toMenu = true;
+                }
+                DrawField(); 
             }
         }
-
-        public Player GetCurrent() => Player!;
     }
 }

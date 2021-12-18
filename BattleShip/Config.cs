@@ -24,10 +24,13 @@ namespace BattleShip
             return true;
         }
 
-        public static bool Save(PlayerDto dto)
+        public static bool Save(PlayerDto dto, string? fileName=null)
         {
-            Console.Write("Enter file name(.db for database, .json otherwise): ");
-            var fileName = Console.ReadLine()?.ToLower() ?? string.Empty;
+            if (string.IsNullOrEmpty(fileName))
+            {
+                Console.Write("Enter file name(.db for database, .json otherwise): ");
+                fileName = Console.ReadLine()?.ToLower() ?? string.Empty;
+            }
 
             if (!ValidInput(fileName!)) return false;
 
@@ -62,7 +65,6 @@ namespace BattleShip
            var game = name.Contains(".json") 
                 ? File.ReadAllText($"{Path}{name}")
                 : DbContext.Records?.FirstOrDefault(r => r.FileName == name)?.Game!;
-            
             return JsonConvert.DeserializeObject<PlayerDto>(game)!;
         }
 

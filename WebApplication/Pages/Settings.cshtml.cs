@@ -15,16 +15,14 @@ namespace WebApplication.Pages
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public ActionResult OnPostAsync()
         {
 
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-
             
-
             return RedirectToPage("./Index");
         }
 

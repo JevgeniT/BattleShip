@@ -3,10 +3,17 @@
 @{
     ViewData["Title"] = "Resume Game";
 }
-<div class="container">
-    <h1>Resume game</h1>
-    @foreach (var game in Model.Games)
-    {
-        <p>@Html.DisplayFor(modelItem => game)</p>
-    }
+<div class="container text-center">
+    <h4>Resume game</h4>
+        @foreach (var game in Model.Games)
+        {    <form method="post">
+
+            <p>
+                <input type="hidden" value="@game" name="name"/>
+                <button type="submit" class="btn btn-light">
+                    @Html.DisplayFor(modelItem => game)
+                </button>
+            </p> </form>
+        }
+   
 </div>

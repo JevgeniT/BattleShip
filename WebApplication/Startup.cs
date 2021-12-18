@@ -16,7 +16,7 @@ namespace WebApplication
         }
 
         public IConfiguration Configuration { get; }
-        private const string ConnectionString = "Data Source=/home/jevgeni/RiderProjects/HW/BattleShip/BattleShip/battleship.db";
+        private const string ConnectionString = "Data Source=/home/admin/RiderProjects/BattleShip/BattleShip/battleship.db";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)

@@ -4,10 +4,17 @@ namespace BattleShip
 {
     public class Settings
     {
-        public char[,] Field { get; set; } = new char[Length, Width];
-        private static int Length { get; set; } = 10;
-        private static int Width { get; set; } = 10;
+        public char[,] Field { get; set; } = new char[10, 10];
+        private   int Length { get; set; } = 10;
+        private   int Width { get; set; } = 10;
 
+        public Settings() { }
+        public Settings(int height, int width)
+        {
+            Length = height;
+            Width = width;
+            Field = new char[height, width];
+        }
         public void SetLength()
         {
             Console.Write("Enter field length: ");

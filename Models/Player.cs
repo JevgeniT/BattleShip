@@ -1,19 +1,18 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace Models
 {
     public class Player
     {
-        public bool SetUp { get; set; }
+        public bool SetUp { get; set; } = true;
         public int R { get; set; } = 5;//row
         public int C { get; set; } = 5;// col
         public char[,]? Field { get; set; } // field with boats
         public char[,]? OpField { get; set; } // opponents field
         public char[,]? MainField() => SetUp ? Field : OpField;
 
+        public int Hits;
         public char Char { get; set; } // player's key pointer and boat on field
         public char OpChar { get; set; }
         
@@ -26,7 +25,14 @@ namespace Models
                 // {3, false}, {4, false}, {5, false}
             };
 
-        public bool IsHit(int? c = null, int?r = null) => MainField()![c??C, r??R] == OpChar;
+        public bool IsHit(int? c = null, int?r = null)
+        {
+            var isHit =  MainField()![c ?? C, r ?? R] == OpChar;
+
+            if (isHit) Hits++;
+            return isHit;
+        }
+
         public char CharAt(int? c = null, int? r = null) 
             => (c ?? C) is < 0 or > 9 || (r ?? R) is < 0 or > 9 
                 ? default 
@@ -35,35 +41,40 @@ namespace Models
         public void SetChar(int? c = null, int? r = null, char? ch = null)
         {
             ch = ch != null ? default : Char;
-            MainField()?.SetValue(ch, C, R);
+            MainField()?.SetValue(ch, c??C, r??R); // bounds todo
         }
        
-        public bool Increment(Pos pos, ref bool enterPressed, ref bool setup)
+        public bool Increment(Pos pos, Axis axis, ref bool enterPressed, ref bool setup)
         {
-            ClearIndex(ref enterPressed, ref setup);
+            ClearIndex(axis, ref enterPressed, ref setup);
             if (pos is Pos.R && CharAt(R + 1, C) == default || CharAt(R + 1, C) == OpChar) R++;
             if (pos is Pos.C && CharAt(R, C + 1) == default || CharAt(R, C + 1) == OpChar) C++;
             return true;
         }
         
-        public bool Decrement(Pos pos, ref bool enterPressed, ref bool setup)
+        public bool Decrement(Pos pos, Axis axis, ref bool enterPressed, ref bool setup)
         {
-            ClearIndex(ref enterPressed, ref setup);
+            ClearIndex(axis, ref enterPressed, ref setup);
             if (pos is Pos.R && CharAt(R - 1, C) == default || CharAt(R - 1, C) == OpChar) R--; //!= Char   || MainField()![R - 1, C] == OpChar
             if (pos is Pos.C && CharAt(R, C - 1) == default || CharAt(R, C - 1) == OpChar) C--; //!= Char  || MainField()![R, C - 1] == OpChar
             
             return true;
         }
         
-        private void ClearIndex(ref bool enterPressed, ref bool setup)
+        private void ClearIndex(Axis axis, ref bool enterPressed, ref bool setup)
         {
             if (!enterPressed)
             {
                 SetChar(ch: '.');
+                
                 if (setup)
                 {
                     var key = Boats.FirstOrDefault(pair => !pair.Value).Key;
-                    for (var i = 0; i < key; i++) SetChar(c: C + i, ch: 'v');
+                    for (var i = 0; i < key; i++)
+                    {
+                        if (axis is Axis.Col) SetChar(c: C + i, ch: 'v');
+                        else SetChar(r: R+i, ch:'v');
+                    }
                 }
             }
             enterPressed = false;
@@ -78,6 +89,10 @@ namespace Models
         public Player() { }
     }
     public enum Pos{ R, C }
+    public enum Axis
+    {
+        Col, Row
+    }
 
     public class PlayerDto
     {

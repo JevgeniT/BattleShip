@@ -1,5 +1,4 @@
 @page
-@using Microsoft.AspNetCore.Components.Web
 @using BattleShip
 @model WebApplication.Pages.Game
 
@@ -7,70 +6,115 @@
     ViewData["Title"] = "New Game";
 }
 
-
 <div class="text-center">
     <h4><b>New Game</b></h4>
-    @* <p>Player @(Model.Engine?.GetCurrent().Char == '*' ? "One" : "Two" ) turn</p> *@
-        <p>Player @(Model.Engine?.GetCurrent().Char) turn</p>
-        <p>Player1 hits @(Model.P11) : Player2 hits @(Model.P22)</p>
-
-    <div class="container mt-3"  style="margin-left: 42%;">
-        <table class="table-bordered">
-            <tbody>
-            <form method="post">
-                @{
-                    @for (var c = 0; c < GameEngine.ColLength; c++)
-                    {
-                        <tr>
-                            @for (var r = 0; r < GameEngine.RowLength; r++)
+    <p>Player @(Model.Engine?.GetCurrent().Char) turn</p>
+    <p>Player1 hits @(Model.Engine.GetCurrent().Hits)</p>
+    <p>@(Model.Engine.GetCurrent().SetUp) is set up? </p>
+    <p><span>@Model.Message</span></p>
+    @{
+        // await Task.Delay(1000);
+        // Console.WriteLine(11111111111111);
+    }
+    <div class="container mt-3"  style="margin-left: 11%;">
+        <div class="row">
+            <div class="col-4" style="left: 10%">
+                <table class="table-bordered" style="width: 65%">
+                    <thead>
+                    <th colspan="10">Your</th>
+                    </thead>
+                    <tbody>
+                    <form method="post" id="mainForm">
+                        @{
+                            @for (var c = 0; c < Model.Engine.ColLength; c++)
                             {
-                                var disabled = Model.Board[c,r] == Model.Engine.GetCurrent().Char;
+                                <tr>
+                                    @for (var r = 0; r < Model.Engine.RowLength; r++)
+                                    {
+                                        char? box = default;
+                                        try
+                                        {
+                                            box = Model.BasePlayer?.OpField![c, r];
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Console.WriteLine($"{c} {r} web");
+                                        }
+                                        
+                                        var disabled = box.GetValueOrDefault() is 'm' or 'o' or 'x';
 
-                                if (!disabled)
-                                {
-                                    <td >
-                                        <input name="AreChecked" type="checkbox" value="@r,@c|" />
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td >
-                                        <input name="AreChecked" type="checkbox" disabled="disabled" value="@r,@c|" />
-                                    </td>
-                                }
+                                        if (disabled)
+                                        {
+                                            var bgColor = box is 'm' ? "red" : "green";
+                                            <td style=" background-color: @bgColor">
+                                                <input name="AreChecked" type="checkbox" disabled="disabled" value="@r,@c|"/>
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td >
+                                                <input name="AreChecked" type="checkbox" value="@r,@c|"/>
+                                            </td>
+                                        }
+                                    }
+                                </tr>
                             }
-                        </tr>
-                    }
-                }
-                <button class="btn btn-success btn-sm" type="submit">Save boats</button>
-            </form>
-            </tbody>
-        </table>
-    </div>
-    
-    <div class="container mt-3"  style="margin-left: 42%;">
-        <p class="text-left">@(Model.Engine.GetCurrent().OpChar) player's boats</p>
-            <table class="table-bordered">
-                <tbody>
-                <form method="post">
-                    @{
-                        @for (var c = 0; c < GameEngine.ColLength; c++)
-                        {
-                            <tr>
-                                @for (var r = 0; r < GameEngine.RowLength; r++)
-                                {
-                                    var disabled = Model.Engine.GetCurrent().Field[c,r];
-    
-                                    <td>
-                                        <span>@(disabled)</span>
-                                    </td>
-                                }
-                            </tr>
                         }
-                    }
-                    @* <button class="btn btn-success btn-sm" type="submit">Save boats</button> *@
+                    </form>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-2">
+                <button type="submit" form="mainForm" class="btn btn-outline-success">Submit</button>
+                <form method="post" id="saveGame" asp-page-handler="Save" class="mt-3">
+                    <button type="submit" form="saveGame" class="btn btn-outline-success mt-2">Save game</button>
+                    <br/>
+                    <label form="saveGame" >Save to DB</label>
+                    <input form="saveGame" type="checkbox" name="ToDb" value="true"/>
                 </form>
-                </tbody>
-            </table>
+            </div>
+            <div class="col-4 ml-3">
+                <table class="table-bordered" style="width: 65%">
+                    <thead>
+                    <th colspan="10">Opponent</th>
+                    </thead>
+                    <tbody>
+                    <form method="post">
+                        @{
+                            @for (var c = 0; c < Model.Engine.ColLength; c++)
+                            {
+                                <tr>
+                                    @for (var r = 0; r < Model.Engine.RowLength; r++)
+                                    {
+                                        var disabled = Model.Engine.GetCurrent()?.Field[c, r];
+
+                                        <td>
+                                            <span>@(disabled)</span>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                    </form>
+                    </tbody>
+                </table>
+            </div>
         </div>
+        <form method="post" asp-page-handler="SaveSettings" id="settings">
+            <div class="form-row align-items-center mt-4" style="margin-left: 15%">
+                <div class="col-auto">
+                    <label  for="height">Height</label>
+                    <input asp-for="Height" id="height" type="text" class="form-control mb-2" min="10" value="10">
+                </div>
+                <div class="col-auto">
+                    <label for="width">Width</label>
+                    <input asp-for="Width" id="width" type="text" class="form-control mb-2" min="10" value="10">
+                </div>
+                <div class="col-auto">
+                    @{ var changed = Model.P11 >0 ? "disabled" : "";}
+                    <button type="submit" form="settings" class="btn btn-outline-primary mt-4" @(changed)>Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
