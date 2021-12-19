@@ -16,23 +16,16 @@ namespace WebApplication.Pages
         [BindProperty] public int Height { get; set; }
         [BindProperty] public int Width { get; set; }
         [BindProperty] public static bool FieldChanged { get; set; }
-        public static int P1, P2;
-        public int P11, P22;
         public GameEngine Engine;
         public string Message { get; set; }
         private static List<GameEngine> list = new ();
-        public Player BasePlayer { get; set; }
-
         private Player Current => Engine.GetCurrent();
         #endregion
 
         public Game()
         {
-            if (list.Count == 0) list.Add(new (new BattleShip.Settings()));
+            if (list.Count == 0) list.Add(new (new Settings()));
             Engine = list?.FirstOrDefault();
-            BasePlayer = Engine?.GetCurrent();
-            P11 = P1;
-            P22 = P2;
         }
 
         public ActionResult OnGet([FromQuery] string gameName)
@@ -43,35 +36,33 @@ namespace WebApplication.Pages
                 list.Add(engine);
                 return Page();
             }
-            
-            list?.Clear();
-            P1 = P2 = 0;
+
+            list = new();
             return Page();
         }
 
         public ActionResult OnPost()
         {
+            Message = AreChecked.Count switch
+            {
+                0 => "Invalid move",
+                not 1 when !Current.SetUp => "Invalid move",
+                _ => null
+            };
+            
+            if (Message is not null) return Page();
+            
             foreach (var str in AreChecked)
             {
                 var xy = str.Replace("|", "").Split(",");
                 var r = int.Parse(xy[0]);
                 var c = int.Parse(xy[1]);
 
-                if (Current.SetUp)
-                {
-                    
-                    Current.Field[c, r] = Current.Char;
-                }
-                else
-                {
-                    Current.C = c;
-                    Current.R = r;
-                    Engine.MakeMove(c, r);
-                }
+                if (Current.SetUp) Current!.Field![c, r] = Current.Char;
+                
+                else Engine.MakeMove(Current.C = c, Current.R = r);
             }
-
-            AreChecked.Clear();
-
+            
             if (Current.SetUp)
             {
                 if(!IsOk(Current.MainField()))
@@ -85,9 +76,11 @@ namespace WebApplication.Pages
 
             if (Current.Hits >= 2)
             {
-                
+                return RedirectToPage(
+                    "./WinnerPage",
+                    new {winner= Current.Char.ToString()}
+                    );
             }
-
            
             return Page();
         }
@@ -115,21 +108,21 @@ namespace WebApplication.Pages
             
             var fileName = $"Web-{DateTime.Now.Hour}:{DateTime.Now.Minute}.{(ToDb ? "db" : "json")}";
             Config.Save(dto, fileName);
-
             Message = $"Game saved as {fileName}";
             return Page();
         }
 
         public IActionResult OnPostSaveSettings()
         {
-            if (Height <= 11) return Page();
+            var validSize = Height is <= 10 or >= 20 && Width is <= 10 or >= 20;
+            if (validSize) return Page();
             list.Clear();
-            list.Add(new GameEngine(new BattleShip.Settings(Height, Width)));
+            list.Add(new GameEngine(new Settings(Height, Width)));
             FieldChanged = true;
             return new PageResult();
         }
         
-        public bool IsOk(char[,] array)
+        private bool IsOk(char[,] array)
         {
             var len = array.GetUpperBound(0) + 1;
             var arr = new List<int>();
@@ -154,7 +147,6 @@ namespace WebApplication.Pages
                 arr.Add(col);
                 row = col = 0;
             }
-            Console.WriteLine(string.Join(",", arr.ToHashSet()));
             return arr.ToHashSet().Sum()==4;
         }
     }

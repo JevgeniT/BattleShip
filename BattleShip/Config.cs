@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using DAL;
 using Models;
 using Newtonsoft.Json;
@@ -15,13 +14,10 @@ namespace BattleShip
         private static readonly AppDbContext DbContext = new();
         private static bool ValidInput(string fileName)
         {
-            if (!(!fileName!.Contains(".json") ^ !fileName!.Contains(".db")) || fileName.Length <= 3)
-            {
-                Console.WriteLine("Invalid input");
+            if (!fileName!.Contains(".json") ^ !fileName!.Contains(".db") && fileName.Length > 3) return true;
+            Console.WriteLine("Invalid input");
 
-                return false;
-            }
-            return true;
+            return false;
         }
 
         public static bool Save(PlayerDto dto, string? fileName=null)
@@ -47,7 +43,6 @@ namespace BattleShip
             DbContext.Records.Add(
                 new DbRecord
                 {
-                    Id = Guid.NewGuid(),
                     FileName = fileName,
                     Game = JsonConvert.SerializeObject(dto)
                 });

@@ -1,0 +1,21 @@
+@page
+@model WebApplication.Pages.WinnerPage
+@{
+    ViewData["Title"] = "WinnerPage";
+}
+
+<div class="container text-center mt-4">
+    <div>
+        <h4>@(Model.Winner) Won </h4>
+    </div>
+    <div class="text-center">
+        <div>
+            <p>            
+                <a asp-page="./Game" asp-route-id="1">New Game</a>
+            </p>
+            <p>            
+                <a asp-page="./ResumeGame">Resume Game</a>
+            </p>
+        </div>
+    </div>
+</div>
