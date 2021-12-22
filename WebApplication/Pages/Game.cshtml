@@ -4,15 +4,15 @@
 
 @{
     ViewData["Title"] = "New Game";
-    var arr = Model.Engine.GetCurrent()?.Field!;
+    var current = Model.Engine.GetCurrent();
 }
 
 <div class="text-center">
     <div class="container text-center ml-4">
         <h4><b>New Game</b></h4>
         <p>Player <strong>@(Model.Engine?.GetCurrent().Char) turn</strong></p>
-        <p>Current hits <strong>@(Model.Engine.GetCurrent().Hits)</strong></p>
-        <p>State: <strong>@(Model.Engine.GetCurrent().SetUp ? "Boards Setup" : "Active game")</strong></p>
+        <p>Current hits <strong>@(current.Hits)</strong></p>
+        <p>State: <strong>@(current.SetUp ? "Boards Setup" : "Active game")</strong></p>
         <h5 style="color: red"><strong>@Model.Message</strong></h5>
     </div>
 
@@ -21,7 +21,7 @@
             <div class="col-4" style="left: 10%">
                 <table class="table-bordered" style="width: 65%">
                     <thead>
-                    <th colspan="10">@(Model.Engine.GetCurrent().SetUp ? "Your" : "Opponent")</th>
+                    <th colspan="10">@(current.SetUp ? "Your" : "Opponent")</th>
                     </thead>
                     <tbody>
                     <form method="post" id="mainForm">
@@ -31,7 +31,7 @@
                                 <tr>
                                     @for (var r = 0; r < Model.Engine.RowLength; r++)
                                     {
-                                        var box = Model.Engine.GetCurrent().MainField()[c,r];
+                                        var box = current.Field[c,r];
                                         var disabled = box is 'm' or 'o' or 'x' ? "disabled" : "";
                                         var bgColor = box is 'm' ? "red" : "green";
                                         var style = disabled != "" ? $"background-color: {@bgColor}" : "";
@@ -58,7 +58,7 @@
             <div class="col-4 ml-3">
                 <table class="table-bordered" style="width: 65%">
                     <thead>
-                    <th colspan="10">@(!Model.Engine.GetCurrent().SetUp ? "Your" : "Opponent")</th>
+                    <th colspan="10">@(!current.SetUp ? "Your" : "Opponent")</th>
                     </thead>
                     <tbody>
                     <form method="post">
@@ -68,10 +68,25 @@
                                 <tr>
                                     @for (var r = 0; r < Model.Engine.RowLength; r++)
                                     {
-                                        var font = arr[c, r] == default ? "white" : "";
-                                        <td style="color: @font">
-                                            <span>@(arr[c, r])</span>
-                                        </td>
+                                        var arr = current.MainField()[c,r];
+                                        var font = arr == default ? "white" : "";
+                                        if (current.Field[c, r] != default && current.Field[c, r] == current.Char)
+                                        {
+                                            <td >
+                                                <span>
+                                                    @current.Field[c,r]
+                                                </span>
+                                            </td> 
+                                        }
+                                        else
+                                        {
+                                            <td style="color: @font">
+                                                <span>
+                                                    @(arr == current.OpChar ? "" : arr)
+                                                </span>
+                                            </td> 
+                                        }
+                                        
                                     }
                                 </tr>
                             }
@@ -92,7 +107,7 @@
                     <input asp-for="Width" id="width" type="text" class="form-control mb-2" min="10" value="10">
                 </div>
                 <div class="col-auto">
-                    @{ var changed = !Model.Engine.GetCurrent().SetUp ? "disabled" : "";}
+                    @{ var changed = !current.SetUp ? "disabled" : "";}
                     <button type="submit" form="settings" class="btn btn-outline-primary mt-4" @(changed)>Submit</button>
                 </div>
             </div>

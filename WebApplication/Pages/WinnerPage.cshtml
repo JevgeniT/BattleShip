@@ -4,18 +4,16 @@
     ViewData["Title"] = "WinnerPage";
 }
 
-<div class="container text-center mt-4">
-    <div>
-        <h4>@(Model.Winner) Won </h4>
+<div class="container text-center">
+    <div style="margin-top: 3rem">
+        <h3 style="color: darkgreen">Player @(Model.Winner) Won </h3>
     </div>
-    <div class="text-center">
-        <div>
-            <p>            
-                <a asp-page="./Game" asp-route-id="1">New Game</a>
-            </p>
-            <p>            
-                <a asp-page="./ResumeGame">Resume Game</a>
-            </p>
-        </div>
+    <div style="margin-top: 6rem">
+        <h4 style="margin-bottom: 3rem">
+            <a asp-page="./Game">New Game</a>
+        </h4>
+        <h4>
+            <a asp-page="./ResumeGame">Resume Game</a>
+        </h4>
     </div>
 </div>

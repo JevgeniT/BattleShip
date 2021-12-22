@@ -37,7 +37,7 @@ namespace WebApplication.Pages
                 return Page();
             }
 
-            list = new();
+            list = new() { new (new Settings()) };
             return Page();
         }
 
