@@ -26,10 +26,10 @@
                     <tbody>
                     <form method="post" id="mainForm">
                         @{
-                            @for (var c = 0; c < Model.Engine.ColLength; c++)
+                            @for (var c = 0; c < Model.Engine.FieldLength; c++)
                             {
                                 <tr>
-                                    @for (var r = 0; r < Model.Engine.RowLength; r++)
+                                    @for (var r = 0; r < Model.Engine.FieldLength; r++)
                                     {
                                         var box = current.Field[c,r];
                                         var disabled = box is 'm' or 'o' or 'x' ? "disabled" : "";
@@ -63,10 +63,10 @@
                     <tbody>
                     <form method="post">
                         @{
-                            @for (var c = 0; c < Model.Engine.ColLength; c++)
+                            @for (var c = 0; c < Model.Engine.FieldLength; c++)
                             {
                                 <tr>
-                                    @for (var r = 0; r < Model.Engine.RowLength; r++)
+                                    @for (var r = 0; r < Model.Engine.FieldLength; r++)
                                     {
                                         var arr = current.MainField()[c,r];
                                         var font = arr == default ? "white" : "";

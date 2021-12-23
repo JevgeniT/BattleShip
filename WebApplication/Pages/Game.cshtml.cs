@@ -34,6 +34,7 @@ namespace WebApplication.Pages
             {
                 var engine = new GameEngine(Config.LoadGame(gameName));
                 list.Add(engine);
+
                 return Page();
             }
 
@@ -58,23 +59,30 @@ namespace WebApplication.Pages
                 var r = int.Parse(xy[0]);
                 var c = int.Parse(xy[1]);
 
-                if (Current.SetUp) Current!.Field![c, r] = Current.Char;
+                if (Current.SetUp)
+                {
+                    Current!.Field![c, r] = Current.Char;
+                    Current.BoatsSum++;
+                }
                 
-                else Engine.MakeMove(Current.C = c, Current.R = r);
+                else Engine.MakeMove(Current.C = c, Current.R = r, true);
             }
             
             if (Current.SetUp)
             {
                 if(!IsOk(Current.MainField()))
                 {
+                    Current.BoatsSum = 0;
                     Message = "not ok";
+                    Current.Field = new char[Engine.FieldLength.Value, Engine.FieldLength.Value];
                     return Page();
                 }
                 Current.SetUp = false;
                 Engine.SwapPlayer();
             }
 
-            if (Current.Hits >= 2)
+            var isWin = Current.BoatsSum != 0 && Current.Hits >= Current.BoatsSum;
+            if (isWin && !Current.SetUp)
             {
                 return RedirectToPage(
                     "./WinnerPage",
@@ -109,6 +117,7 @@ namespace WebApplication.Pages
             var fileName = $"Web-{DateTime.Now.Hour}:{DateTime.Now.Minute}.{(ToDb ? "db" : "json")}";
             Config.Save(dto, fileName);
             Message = $"Game saved as {fileName}";
+
             return Page();
         }
 
@@ -119,6 +128,7 @@ namespace WebApplication.Pages
             list.Clear();
             list.Add(new GameEngine(new Settings(Height, Width)));
             FieldChanged = true;
+            
             return new PageResult();
         }
         
@@ -147,7 +157,14 @@ namespace WebApplication.Pages
                 arr.Add(col);
                 row = col = 0;
             }
-            return arr.ToHashSet().Sum()==4;
+
+            var sum = arr.ToHashSet().Sum();
+            if (Current.BoatsSum > 0)
+            {
+                return sum-1  == Current.BoatsSum;
+            }
+            
+            return  arr.ToHashSet().Sum() == 4;
         }
     }
 }

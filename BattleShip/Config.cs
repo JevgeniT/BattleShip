@@ -22,6 +22,7 @@ namespace BattleShip
 
         public static bool Save(PlayerDto dto, string? fileName=null)
         {
+            if (dto.Player!.SetUp) return false;
             if (string.IsNullOrEmpty(fileName))
             {
                 Console.Write("Enter file name(.db for database, .json otherwise): ");
@@ -51,7 +52,7 @@ namespace BattleShip
         }
         private static bool SaveToJson(string fileName, PlayerDto dto)
         {
-            File.WriteAllText($"{Path}{fileName}.json", JsonConvert.SerializeObject(dto));
+            File.WriteAllText($"{Path}{fileName}", JsonConvert.SerializeObject(dto));
             return true;
         }
 

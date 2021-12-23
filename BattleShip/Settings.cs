@@ -4,9 +4,9 @@ namespace BattleShip
 {
     public class Settings
     {
-        public char[,] Field { get; set; } = new char[10, 10];
-        private  int Length { get; set; } = 10;
-        private  int Width { get; set; } = 10;
+        public char[,] Field { get; set; } = new char[Length, Width];
+        private static int Length { get; set; } = 10;
+        private static int Width { get; set; } = 10;
 
         public Settings() { }
         public Settings(int height, int width)
@@ -35,7 +35,8 @@ namespace BattleShip
             Console.Write("Enter field width: ");
             if (int.TryParse(Console.ReadLine(), out var width) )
             {
-                if (width is >= 10 and <= 20) Width = width; 
+                if(width != Length) return;
+                if (width is >= 10 and <= 20 ) Width = width; 
                 Console.WriteLine("Width has been changed to {0}", Width);
             }
             else

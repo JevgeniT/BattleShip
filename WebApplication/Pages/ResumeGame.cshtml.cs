@@ -18,7 +18,7 @@ namespace WebApplication.Pages
 
         public ActionResult OnGet()
         {
-            Games  = Config.ListAll();//_context.Records.Select(r => r.FileName).ToList();
+            Games  = Config.ListAll();
             return Page();
         }
 
